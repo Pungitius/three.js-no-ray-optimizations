@@ -157,22 +157,22 @@ class Mesh extends Object3D {
 
 		// test with bounding sphere in world space
 
-		if ( geometry.boundingSphere === null ) geometry.computeBoundingSphere();
+		// if ( geometry.boundingSphere === null ) geometry.computeBoundingSphere();
 
-		_sphere.copy( geometry.boundingSphere );
-		_sphere.applyMatrix4( matrixWorld );
+		// _sphere.copy( geometry.boundingSphere );
+		// _sphere.applyMatrix4( matrixWorld );
 
 		// check distance from ray origin to bounding sphere
 
 		_ray.copy( raycaster.ray ).recast( raycaster.near );
 
-		if ( _sphere.containsPoint( _ray.origin ) === false ) {
+		// if ( _sphere.containsPoint( _ray.origin ) === false ) {
 
-			if ( _ray.intersectSphere( _sphere, _sphereHitAt ) === null ) return;
+		// 	if ( _ray.intersectSphere( _sphere, _sphereHitAt ) === null ) return;
 
-			if ( _ray.origin.distanceToSquared( _sphereHitAt ) > ( raycaster.far - raycaster.near ) ** 2 ) return;
+		// 	if ( _ray.origin.distanceToSquared( _sphereHitAt ) > ( raycaster.far - raycaster.near ) ** 2 ) return;
 
-		}
+		// }
 
 		// convert ray to local space of mesh
 
@@ -181,11 +181,11 @@ class Mesh extends Object3D {
 
 		// test with bounding box in local space
 
-		if ( geometry.boundingBox !== null ) {
+		// if ( geometry.boundingBox !== null ) {
 
-			if ( _ray.intersectsBox( geometry.boundingBox ) === false ) return;
+		// 	if ( _ray.intersectsBox( geometry.boundingBox ) === false ) return;
 
-		}
+		// }
 
 		// test for intersections with geometry
 
