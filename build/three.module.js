@@ -11562,6 +11562,8 @@ class BufferGeometry extends EventDispatcher {
 
 const _inverseMatrix$3 = /*@__PURE__*/ new Matrix4();
 const _ray$3 = /*@__PURE__*/ new Ray();
+const _sphere$6 = /*@__PURE__*/ new Sphere();
+const _sphereHitAt = /*@__PURE__*/ new Vector3();
 
 const _vA$1 = /*@__PURE__*/ new Vector3();
 const _vB$1 = /*@__PURE__*/ new Vector3();
@@ -11698,7 +11700,7 @@ class Mesh extends Object3D {
 
 	raycast( raycaster, intersects ) {
 
-		this.geometry;
+		const geometry = this.geometry;
 		const material = this.material;
 		const matrixWorld = this.matrixWorld;
 
@@ -11706,22 +11708,22 @@ class Mesh extends Object3D {
 
 		// test with bounding sphere in world space
 
-		// if ( geometry.boundingSphere === null ) geometry.computeBoundingSphere();
+		if ( geometry.boundingSphere === null ) geometry.computeBoundingSphere();
 
-		// _sphere.copy( geometry.boundingSphere );
-		// _sphere.applyMatrix4( matrixWorld );
+		_sphere$6.copy( geometry.boundingSphere );
+		_sphere$6.applyMatrix4( matrixWorld );
 
 		// check distance from ray origin to bounding sphere
 
 		_ray$3.copy( raycaster.ray ).recast( raycaster.near );
 
-		// if ( _sphere.containsPoint( _ray.origin ) === false ) {
+		if ( _sphere$6.containsPoint( _ray$3.origin ) === false ) {
 
-		// 	if ( _ray.intersectSphere( _sphere, _sphereHitAt ) === null ) return;
+			if ( _ray$3.intersectSphere( _sphere$6, _sphereHitAt ) === null ) return;
 
-		// 	if ( _ray.origin.distanceToSquared( _sphereHitAt ) > ( raycaster.far - raycaster.near ) ** 2 ) return;
+			if ( _ray$3.origin.distanceToSquared( _sphereHitAt ) > ( raycaster.far - raycaster.near ) ** 2 ) return;
 
-		// }
+		}
 
 		// convert ray to local space of mesh
 
