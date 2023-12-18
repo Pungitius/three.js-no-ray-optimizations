@@ -181,11 +181,11 @@ class Mesh extends Object3D {
 
 		// test with bounding box in local space
 
-		// if ( geometry.boundingBox !== null ) {
+		if ( geometry.boundingBox !== null ) {
 
-		// 	if ( _ray.intersectsBox( geometry.boundingBox ) === false ) return;
+			if ( _ray.intersectsBox( geometry.boundingBox ) === false ) return;
 
-		// }
+		}
 
 		// test for intersections with geometry
 
