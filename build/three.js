@@ -5989,7 +5989,7 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 
 			for ( let i = 0; i < 7; i ++ ) {
 
-				const normal = dop14.normals[ i ];
+				const normal = dop14.normals[ i ].clone();
 				new Plane( normal, dop14.min[ i ] );
 				new Plane( normal, dop14.max[ i ] );
 
@@ -6041,6 +6041,8 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 				// tmax = Math.min( tmax, largerDistance );
 
 			}
+
+			console.log( umin, umax );
 
 			if ( umin > umax ) {
 
