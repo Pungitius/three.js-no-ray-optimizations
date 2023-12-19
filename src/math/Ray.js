@@ -453,13 +453,13 @@ class Ray {
 
 		}
 
-		if ( tmin > tmax ) {
+		if ( umin > umax ) {
 
 			return null;
 
 		}
 
-		return this.at( tmin, target );
+		return this.at( umin, target );
 
 	}
 

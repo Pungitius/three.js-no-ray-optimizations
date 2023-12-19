@@ -5984,6 +5984,9 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 
 		intersect14DOP( dop14, target ) {
 
+			let umin = Number.NEGATIVE_INFINITY;
+			let umax = Number.INFINITY;
+
 			for ( let i = 0; i < 7; i ++ ) {
 
 				const normal = dop14.normals[ i ];
@@ -5993,18 +5996,25 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 				new Vector3();
 				new Vector3();
 
+				// http://what-when-how.com/advanced-methods-in-computer-graphics/collision-detection-advanced-methods-in-computer-graphics-part-4/
+
+				let tmin, tmax;
+
 				const wj = ( dop14.max[ i ] - dop14.min[ i ] ) / 2;
 				if ( this.direction.clone().dot( normal ) > 0 ) {
 
-					( - wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
-					( wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
+					tmin = ( - wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
+					tmax = ( wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
 
 				} else if ( this.direction.clone().dot( normal ) < 0 ) {
 
-					( wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
-					( - wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
+					tmin = ( wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
+					tmax = ( - wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
 
 				}
+
+				umin = Math.max( umin, tmin );
+				umax = Math.max( umax, tmax );
 
 				// this.intersectPlane( minPlane, minIntersection );
 				// this.intersectPlane( maxPlane, maxIntersection );
@@ -6032,13 +6042,13 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 
 			}
 
-			if ( tmin > tmax ) {
+			if ( umin > umax ) {
 
 				return null;
 
 			}
 
-			return this.at( tmin, target );
+			return this.at( umin, target );
 
 		}
 
