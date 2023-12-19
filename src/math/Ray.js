@@ -1,4 +1,5 @@
 import { Vector3 } from './Vector3.js';
+import { Plane } from './Plane.js';
 
 const _vector = /*@__PURE__*/ new Vector3();
 const _segCenter = /*@__PURE__*/ new Vector3();
@@ -389,6 +390,44 @@ class Ray {
 	intersectsBox( box ) {
 
 		return this.intersectBox( box, _vector ) !== null;
+
+	}
+
+	intersect14DOP( dop14, target ) {
+
+		let tmin = Number.NEGATIVE_INFINITY;
+		let tmax = Number.INFINITY;
+
+		for ( let i = 0; i < 7; i ++ ) {
+
+			const normal = dop14.normals[ i ];
+			const minPlane = new Plane( normal, dop14.min[ i ] );
+			const maxPlane = new Plane( normal, dop14.max[ i ] );
+
+			const minIntersection = new Vector3();
+			const maxIntersection = new Vector3();
+
+			this.intersectPlane( minPlane, minIntersection );
+			this.intersectPlane( maxPlane, maxIntersection );
+
+			tmin = Math.max( tmin, minIntersection.distanceTo( this.origin ) );
+			tmax = Math.min( tmax, maxIntersection.distanceTo( this.origin ) );
+
+		}
+
+		if ( tmin > tmax ) {
+
+			return null;
+
+		}
+
+		return this.at( tmin, target );
+
+	}
+
+	intersects14DOP( dop14 ) {
+
+		return this.intersectBox( dop14, _vector ) !== null;
 
 	}
 
