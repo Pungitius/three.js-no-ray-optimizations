@@ -465,7 +465,7 @@ class Ray {
 
 	intersects14DOP( dop14 ) {
 
-		return this.intersectBox( dop14, _vector ) !== null;
+		return this.intersect14DOP( dop14, _vector ) !== null;
 
 	}
 

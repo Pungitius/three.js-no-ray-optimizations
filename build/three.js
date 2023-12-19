@@ -6054,7 +6054,7 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 
 		intersects14DOP( dop14 ) {
 
-			return this.intersectBox( dop14, _vector$a ) !== null;
+			return this.intersect14DOP( dop14, _vector$a ) !== null;
 
 		}
 
