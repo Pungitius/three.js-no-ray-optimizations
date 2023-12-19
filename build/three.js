@@ -5999,8 +5999,25 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 				this.intersectPlane( minPlane, minIntersection );
 				this.intersectPlane( maxPlane, maxIntersection );
 
-				tmin = Math.max( tmin, minIntersection.distanceTo( this.origin ) );
-				tmax = Math.min( tmax, maxIntersection.distanceTo( this.origin ) );
+				const d1 = minIntersection.distanceTo( this.origin );
+				const d2 = maxIntersection.distanceTo( this.origin );
+
+				let smallerDistance, largerDistance;
+
+				if ( d1 < d2 ) {
+
+					smallerDistance = d1;
+					largerDistance = d2;
+
+				} else {
+
+					smallerDistance = d2;
+					largerDistance = d1;
+
+				}
+
+				tmin = Math.max( tmin, smallerDistance);
+				tmax = Math.min( tmax, largerDistance);
 
 			}
 
