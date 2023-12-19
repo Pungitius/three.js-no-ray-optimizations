@@ -6013,8 +6013,8 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 
 				}
 
-				umin = Math.max( umin, tmin );
-				umax = Math.max( umax, tmax );
+				if ( tmin !== undefined ) umin = Math.max( umin, tmin );
+				if ( tmax !== undefined ) umax = Math.min( umax, tmax );
 
 				// this.intersectPlane( minPlane, minIntersection );
 				// this.intersectPlane( maxPlane, maxIntersection );
@@ -6041,8 +6041,6 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 				// tmax = Math.min( tmax, largerDistance );
 
 			}
-
-			console.log( umin, umax );
 
 			if ( umin > umax ) {
 

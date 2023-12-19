@@ -6006,8 +6006,8 @@ class Ray {
 
 			}
 
-			umin = Math.max( umin, tmin );
-			umax = Math.max( umax, tmax );
+			if ( tmin !== undefined ) umin = Math.max( umin, tmin );
+			if ( tmax !== undefined ) umax = Math.min( umax, tmax );
 
 			// this.intersectPlane( minPlane, minIntersection );
 			// this.intersectPlane( maxPlane, maxIntersection );
@@ -6034,8 +6034,6 @@ class Ray {
 			// tmax = Math.min( tmax, largerDistance );
 
 		}
-
-		console.log( umin, umax );
 
 		if ( umin > umax ) {
 
