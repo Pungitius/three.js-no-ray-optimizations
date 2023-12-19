@@ -5389,6 +5389,207 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 
 	}
 
+	const _vector1 = /*@__PURE__*/ new Vector3();
+	const _vector2$1 = /*@__PURE__*/ new Vector3();
+	const _normalMatrix = /*@__PURE__*/ new Matrix3();
+
+	class Plane {
+
+		constructor( normal = new Vector3( 1, 0, 0 ), constant = 0 ) {
+
+			this.isPlane = true;
+
+			// normal is assumed to be normalized
+
+			this.normal = normal;
+			this.constant = constant;
+
+		}
+
+		set( normal, constant ) {
+
+			this.normal.copy( normal );
+			this.constant = constant;
+
+			return this;
+
+		}
+
+		setComponents( x, y, z, w ) {
+
+			this.normal.set( x, y, z );
+			this.constant = w;
+
+			return this;
+
+		}
+
+		setFromNormalAndCoplanarPoint( normal, point ) {
+
+			this.normal.copy( normal );
+			this.constant = - point.dot( this.normal );
+
+			return this;
+
+		}
+
+		setFromCoplanarPoints( a, b, c ) {
+
+			const normal = _vector1.subVectors( c, b ).cross( _vector2$1.subVectors( a, b ) ).normalize();
+
+			// Q: should an error be thrown if normal is zero (e.g. degenerate plane)?
+
+			this.setFromNormalAndCoplanarPoint( normal, a );
+
+			return this;
+
+		}
+
+		copy( plane ) {
+
+			this.normal.copy( plane.normal );
+			this.constant = plane.constant;
+
+			return this;
+
+		}
+
+		normalize() {
+
+			// Note: will lead to a divide by zero if the plane is invalid.
+
+			const inverseNormalLength = 1.0 / this.normal.length();
+			this.normal.multiplyScalar( inverseNormalLength );
+			this.constant *= inverseNormalLength;
+
+			return this;
+
+		}
+
+		negate() {
+
+			this.constant *= - 1;
+			this.normal.negate();
+
+			return this;
+
+		}
+
+		distanceToPoint( point ) {
+
+			return this.normal.dot( point ) + this.constant;
+
+		}
+
+		distanceToSphere( sphere ) {
+
+			return this.distanceToPoint( sphere.center ) - sphere.radius;
+
+		}
+
+		projectPoint( point, target ) {
+
+			return target.copy( point ).addScaledVector( this.normal, - this.distanceToPoint( point ) );
+
+		}
+
+		intersectLine( line, target ) {
+
+			const direction = line.delta( _vector1 );
+
+			const denominator = this.normal.dot( direction );
+
+			if ( denominator === 0 ) {
+
+				// line is coplanar, return origin
+				if ( this.distanceToPoint( line.start ) === 0 ) {
+
+					return target.copy( line.start );
+
+				}
+
+				// Unsure if this is the correct method to handle this case.
+				return null;
+
+			}
+
+			const t = - ( line.start.dot( this.normal ) + this.constant ) / denominator;
+
+			if ( t < 0 || t > 1 ) {
+
+				return null;
+
+			}
+
+			return target.copy( line.start ).addScaledVector( direction, t );
+
+		}
+
+		intersectsLine( line ) {
+
+			// Note: this tests if a line intersects the plane, not whether it (or its end-points) are coplanar with it.
+
+			const startSign = this.distanceToPoint( line.start );
+			const endSign = this.distanceToPoint( line.end );
+
+			return ( startSign < 0 && endSign > 0 ) || ( endSign < 0 && startSign > 0 );
+
+		}
+
+		intersectsBox( box ) {
+
+			return box.intersectsPlane( this );
+
+		}
+
+		intersectsSphere( sphere ) {
+
+			return sphere.intersectsPlane( this );
+
+		}
+
+		coplanarPoint( target ) {
+
+			return target.copy( this.normal ).multiplyScalar( - this.constant );
+
+		}
+
+		applyMatrix4( matrix, optionalNormalMatrix ) {
+
+			const normalMatrix = optionalNormalMatrix || _normalMatrix.getNormalMatrix( matrix );
+
+			const referencePoint = this.coplanarPoint( _vector1 ).applyMatrix4( matrix );
+
+			const normal = this.normal.applyMatrix3( normalMatrix ).normalize();
+
+			this.constant = - referencePoint.dot( normal );
+
+			return this;
+
+		}
+
+		translate( offset ) {
+
+			this.constant -= offset.dot( this.normal );
+
+			return this;
+
+		}
+
+		equals( plane ) {
+
+			return plane.normal.equals( this.normal ) && ( plane.constant === this.constant );
+
+		}
+
+		clone() {
+
+			return new this.constructor().copy( this );
+
+		}
+
+	}
+
 	const _vector$a = /*@__PURE__*/ new Vector3();
 	const _segCenter = /*@__PURE__*/ new Vector3();
 	const _segDir = /*@__PURE__*/ new Vector3();
@@ -5778,6 +5979,44 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 		intersectsBox( box ) {
 
 			return this.intersectBox( box, _vector$a ) !== null;
+
+		}
+
+		intersect14DOP( dop14, target ) {
+
+			let tmin = Number.NEGATIVE_INFINITY;
+			let tmax = Number.INFINITY;
+
+			for ( let i = 0; i < 7; i ++ ) {
+
+				const normal = dop14.normals[ i ];
+				const minPlane = new Plane( normal, dop14.min[ i ] );
+				const maxPlane = new Plane( normal, dop14.max[ i ] );
+
+				const minIntersection = new Vector3();
+				const maxIntersection = new Vector3();
+
+				this.intersectPlane( minPlane, minIntersection );
+				this.intersectPlane( maxPlane, maxIntersection );
+
+				tmin = Math.max( tmin, minIntersection.distanceTo( this.origin ) );
+				tmax = Math.min( tmax, maxIntersection.distanceTo( this.origin ) );
+
+			}
+
+			if ( tmin > tmax ) {
+
+				return null;
+
+			}
+
+			return this.at( tmin, target );
+
+		}
+
+		intersects14DOP( dop14 ) {
+
+			return this.intersectBox( dop14, _vector$a ) !== null;
 
 		}
 
@@ -9874,7 +10113,7 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 	};
 
 	const _vector$9 = /*@__PURE__*/ new Vector3();
-	const _vector2$1 = /*@__PURE__*/ new Vector2();
+	const _vector2 = /*@__PURE__*/ new Vector2();
 
 	class BufferAttribute {
 
@@ -9983,10 +10222,10 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 
 				for ( let i = 0, l = this.count; i < l; i ++ ) {
 
-					_vector2$1.fromBufferAttribute( this, i );
-					_vector2$1.applyMatrix3( m );
+					_vector2.fromBufferAttribute( this, i );
+					_vector2.applyMatrix3( m );
 
-					this.setXY( i, _vector2$1.x, _vector2$1.y );
+					this.setXY( i, _vector2.x, _vector2.y );
 
 				}
 
@@ -13073,207 +13312,6 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 			}
 
 			renderer.setRenderTarget( currentRenderTarget );
-
-		}
-
-	}
-
-	const _vector1 = /*@__PURE__*/ new Vector3();
-	const _vector2 = /*@__PURE__*/ new Vector3();
-	const _normalMatrix = /*@__PURE__*/ new Matrix3();
-
-	class Plane {
-
-		constructor( normal = new Vector3( 1, 0, 0 ), constant = 0 ) {
-
-			this.isPlane = true;
-
-			// normal is assumed to be normalized
-
-			this.normal = normal;
-			this.constant = constant;
-
-		}
-
-		set( normal, constant ) {
-
-			this.normal.copy( normal );
-			this.constant = constant;
-
-			return this;
-
-		}
-
-		setComponents( x, y, z, w ) {
-
-			this.normal.set( x, y, z );
-			this.constant = w;
-
-			return this;
-
-		}
-
-		setFromNormalAndCoplanarPoint( normal, point ) {
-
-			this.normal.copy( normal );
-			this.constant = - point.dot( this.normal );
-
-			return this;
-
-		}
-
-		setFromCoplanarPoints( a, b, c ) {
-
-			const normal = _vector1.subVectors( c, b ).cross( _vector2.subVectors( a, b ) ).normalize();
-
-			// Q: should an error be thrown if normal is zero (e.g. degenerate plane)?
-
-			this.setFromNormalAndCoplanarPoint( normal, a );
-
-			return this;
-
-		}
-
-		copy( plane ) {
-
-			this.normal.copy( plane.normal );
-			this.constant = plane.constant;
-
-			return this;
-
-		}
-
-		normalize() {
-
-			// Note: will lead to a divide by zero if the plane is invalid.
-
-			const inverseNormalLength = 1.0 / this.normal.length();
-			this.normal.multiplyScalar( inverseNormalLength );
-			this.constant *= inverseNormalLength;
-
-			return this;
-
-		}
-
-		negate() {
-
-			this.constant *= - 1;
-			this.normal.negate();
-
-			return this;
-
-		}
-
-		distanceToPoint( point ) {
-
-			return this.normal.dot( point ) + this.constant;
-
-		}
-
-		distanceToSphere( sphere ) {
-
-			return this.distanceToPoint( sphere.center ) - sphere.radius;
-
-		}
-
-		projectPoint( point, target ) {
-
-			return target.copy( point ).addScaledVector( this.normal, - this.distanceToPoint( point ) );
-
-		}
-
-		intersectLine( line, target ) {
-
-			const direction = line.delta( _vector1 );
-
-			const denominator = this.normal.dot( direction );
-
-			if ( denominator === 0 ) {
-
-				// line is coplanar, return origin
-				if ( this.distanceToPoint( line.start ) === 0 ) {
-
-					return target.copy( line.start );
-
-				}
-
-				// Unsure if this is the correct method to handle this case.
-				return null;
-
-			}
-
-			const t = - ( line.start.dot( this.normal ) + this.constant ) / denominator;
-
-			if ( t < 0 || t > 1 ) {
-
-				return null;
-
-			}
-
-			return target.copy( line.start ).addScaledVector( direction, t );
-
-		}
-
-		intersectsLine( line ) {
-
-			// Note: this tests if a line intersects the plane, not whether it (or its end-points) are coplanar with it.
-
-			const startSign = this.distanceToPoint( line.start );
-			const endSign = this.distanceToPoint( line.end );
-
-			return ( startSign < 0 && endSign > 0 ) || ( endSign < 0 && startSign > 0 );
-
-		}
-
-		intersectsBox( box ) {
-
-			return box.intersectsPlane( this );
-
-		}
-
-		intersectsSphere( sphere ) {
-
-			return sphere.intersectsPlane( this );
-
-		}
-
-		coplanarPoint( target ) {
-
-			return target.copy( this.normal ).multiplyScalar( - this.constant );
-
-		}
-
-		applyMatrix4( matrix, optionalNormalMatrix ) {
-
-			const normalMatrix = optionalNormalMatrix || _normalMatrix.getNormalMatrix( matrix );
-
-			const referencePoint = this.coplanarPoint( _vector1 ).applyMatrix4( matrix );
-
-			const normal = this.normal.applyMatrix3( normalMatrix ).normalize();
-
-			this.constant = - referencePoint.dot( normal );
-
-			return this;
-
-		}
-
-		translate( offset ) {
-
-			this.constant -= offset.dot( this.normal );
-
-			return this;
-
-		}
-
-		equals( plane ) {
-
-			return plane.normal.equals( this.normal ) && ( plane.constant === this.constant );
-
-		}
-
-		clone() {
-
-			return new this.constructor().copy( this );
 
 		}
 
