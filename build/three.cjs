@@ -6016,6 +6016,8 @@ class Ray {
 
 		}
 
+		console.log( tmin, tmax );
+
 		if ( tmin > tmax ) {
 
 			return null;
