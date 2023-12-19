@@ -6042,6 +6042,8 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 
 			}
 
+			console.log( umin, umax );
+
 			if ( umin > umax ) {
 
 				return null;

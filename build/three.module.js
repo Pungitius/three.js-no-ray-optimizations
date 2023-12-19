@@ -6035,6 +6035,8 @@ class Ray {
 
 		}
 
+		console.log( umin, umax );
+
 		if ( umin > umax ) {
 
 			return null;
