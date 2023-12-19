@@ -395,8 +395,8 @@ class Ray {
 
 	intersect14DOP( dop14, target ) {
 
-		let tmin = Number.NEGATIVE_INFINITY;
-		let tmax = Number.INFINITY;
+		let umin = Number.NEGATIVE_INFINITY;
+		let umax = Number.INFINITY;
 
 		for ( let i = 0; i < 7; i ++ ) {
 
@@ -407,32 +407,45 @@ class Ray {
 			const minIntersection = new Vector3();
 			const maxIntersection = new Vector3();
 
-			this.intersectPlane( minPlane, minIntersection );
-			this.intersectPlane( maxPlane, maxIntersection );
+			// http://what-when-how.com/advanced-methods-in-computer-graphics/collision-detection-advanced-methods-in-computer-graphics-part-4/
 
-			const d1 = minIntersection.distanceTo( this.origin );
-			const d2 = maxIntersection.distanceTo( this.origin );
+			let tmin, tmax;
 
-			let smallerDistance, largerDistance;
+			const wj = ( dop14.max[ i ] - dop14.min[ i ] ) / 2;
+			if ( this.direction.clone().dot( normal ) > 0 ) {
 
-			if ( d1 < d2 ) {
-
-				smallerDistance = d1;
-				largerDistance = d2;
-
-			} else {
-
-				smallerDistance = d2;
-				largerDistance = d1;
+				tmin = ( - wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
 
 			}
 
-			tmin = Math.max( tmin, smallerDistance);
-			tmax = Math.min( tmax, largerDistance);
+			umin = Math.max( umin, tmin );
+			umax = Math.max( umax, tmax );
+
+			// this.intersectPlane( minPlane, minIntersection );
+			// this.intersectPlane( maxPlane, maxIntersection );
+
+			// // this distance from origin is not signed
+			// const d1 = minIntersection.distanceTo( this.origin );
+			// const d2 = maxIntersection.distanceTo( this.origin );
+
+			// let smallerDistance, largerDistance;
+
+			// if ( d1 < d2 ) {
+
+			// 	smallerDistance = d1;
+			// 	largerDistance = d2;
+
+			// } else {
+
+			// 	smallerDistance = d2;
+			// 	largerDistance = d1;
+
+			// }
+
+			// tmin = Math.max( tmin, smallerDistance );
+			// tmax = Math.min( tmax, largerDistance );
 
 		}
-
-		console.log( tmin, tmax );
 
 		if ( tmin > tmax ) {
 

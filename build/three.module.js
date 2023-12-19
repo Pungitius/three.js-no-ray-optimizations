@@ -5977,44 +5977,47 @@ class Ray {
 
 	intersect14DOP( dop14, target ) {
 
-		let tmin = Number.NEGATIVE_INFINITY;
-		let tmax = Number.INFINITY;
-
 		for ( let i = 0; i < 7; i ++ ) {
 
 			const normal = dop14.normals[ i ];
-			const minPlane = new Plane( normal, dop14.min[ i ] );
-			const maxPlane = new Plane( normal, dop14.max[ i ] );
+			new Plane( normal, dop14.min[ i ] );
+			new Plane( normal, dop14.max[ i ] );
 
-			const minIntersection = new Vector3();
-			const maxIntersection = new Vector3();
+			new Vector3();
+			new Vector3();
 
-			this.intersectPlane( minPlane, minIntersection );
-			this.intersectPlane( maxPlane, maxIntersection );
+			const wj = ( dop14.max[ i ] - dop14.min[ i ] ) / 2;
+			if ( this.direction.clone().dot( normal ) > 0 ) {
 
-			const d1 = minIntersection.distanceTo( this.origin );
-			const d2 = maxIntersection.distanceTo( this.origin );
-
-			let smallerDistance, largerDistance;
-
-			if ( d1 < d2 ) {
-
-				smallerDistance = d1;
-				largerDistance = d2;
-
-			} else {
-
-				smallerDistance = d2;
-				largerDistance = d1;
+				( - wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
 
 			}
 
-			tmin = Math.max( tmin, smallerDistance);
-			tmax = Math.min( tmax, largerDistance);
+			// this.intersectPlane( minPlane, minIntersection );
+			// this.intersectPlane( maxPlane, maxIntersection );
+
+			// // this distance from origin is not signed
+			// const d1 = minIntersection.distanceTo( this.origin );
+			// const d2 = maxIntersection.distanceTo( this.origin );
+
+			// let smallerDistance, largerDistance;
+
+			// if ( d1 < d2 ) {
+
+			// 	smallerDistance = d1;
+			// 	largerDistance = d2;
+
+			// } else {
+
+			// 	smallerDistance = d2;
+			// 	largerDistance = d1;
+
+			// }
+
+			// tmin = Math.max( tmin, smallerDistance );
+			// tmax = Math.min( tmax, largerDistance );
 
 		}
-
-		console.log( tmin, tmax );
 
 		if ( tmin > tmax ) {
 
