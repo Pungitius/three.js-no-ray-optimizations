@@ -5997,6 +5997,12 @@ console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated 
 				if ( this.direction.clone().dot( normal ) > 0 ) {
 
 					( - wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
+					( wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
+
+				} else if ( this.direction.clone().dot( normal ) < 0 ) {
+
+					( wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
+					( - wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
 
 				}
 

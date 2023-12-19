@@ -415,6 +415,12 @@ class Ray {
 			if ( this.direction.clone().dot( normal ) > 0 ) {
 
 				tmin = ( - wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
+				tmax = ( wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
+
+			} else if ( this.direction.clone().dot( normal ) < 0 ) {
+
+				tmin = ( wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
+				tmax = ( - wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
 
 			}
 

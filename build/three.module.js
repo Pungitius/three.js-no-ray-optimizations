@@ -5990,6 +5990,12 @@ class Ray {
 			if ( this.direction.clone().dot( normal ) > 0 ) {
 
 				( - wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
+				( wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
+
+			} else if ( this.direction.clone().dot( normal ) < 0 ) {
+
+				( wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
+				( - wj - this.origin.clone().dot( normal ) ) / this.direction.clone().dot( normal );
 
 			}
 
