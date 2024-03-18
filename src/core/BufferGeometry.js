@@ -9,6 +9,7 @@ import { Matrix4 } from '../math/Matrix4.js';
 import { Matrix3 } from '../math/Matrix3.js';
 import * as MathUtils from '../math/MathUtils.js';
 import { arrayNeedsUint32 } from '../utils.js';
+import { DOP } from '../math/DOP.ts';
 
 let _id = 0;
 
@@ -44,6 +45,9 @@ class BufferGeometry extends EventDispatcher {
 
 		this.boundingBox = null;
 		this.boundingSphere = null;
+		this.boundingDOP14 = null;
+
+		this.computeBoundingDOP14();
 
 		this.drawRange = { start: 0, count: Infinity };
 
@@ -466,6 +470,13 @@ class BufferGeometry extends EventDispatcher {
 			}
 
 		}
+
+	}
+
+	computeBoundingDOP14() {
+
+		this.boundingDOP14 = new DOP( 14 );
+		this.boundingDOP14.expandByObject( this );
 
 	}
 
