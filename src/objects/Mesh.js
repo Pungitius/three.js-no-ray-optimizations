@@ -187,13 +187,13 @@ class Mesh extends Object3D {
 
 		}
 
-		// // k-DOP step
+		// k-DOP step
 
-		// if ( geometry.boundingDOP14 !== null ) {
+		if ( geometry.boundingDOP14 !== null ) {
 
-		// 	if ( geometry.boundingDOP14.intersectsRay(_ray) === false ) return;
+			if ( geometry.boundingDOP14.intersectsRay(_ray) === false ) return;
 
-		// }
+		}
 
 		// test for intersections with geometry
 
