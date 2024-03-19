@@ -476,7 +476,7 @@ class BufferGeometry extends EventDispatcher {
 	computeBoundingDOP14() {
 
 		this.boundingDOP14 = new DOP( 14 );
-		this.boundingDOP14.expandByObject( this );
+		this.boundingDOP14.setFromBufferAttribute( this.getAttribute( 'position' ) );
 
 	}
 
