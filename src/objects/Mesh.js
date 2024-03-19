@@ -176,24 +176,24 @@ class Mesh extends Object3D {
 
 		// convert ray to local space of mesh
 
-		// _inverseMatrix.copy( matrixWorld ).invert();
-		// _ray.copy( raycaster.ray ).applyMatrix4( _inverseMatrix );
+		_inverseMatrix.copy( matrixWorld ).invert();
+		_ray.copy( raycaster.ray ).applyMatrix4( _inverseMatrix );
 
-		// // test with bounding box in local space
+		// test with bounding box in local space
 
-		// if ( geometry.boundingBox !== null ) {
+		if ( geometry.boundingBox !== null ) {
 
-		// 	if ( _ray.intersectsBox( geometry.boundingBox ) === false ) return;
-
-		// }
-
-		// k-DOP step
-
-		if ( geometry.boundingDOP14 !== null ) {
-
-			if ( geometry.boundingDOP14.intersectsRay( _ray ) === false ) return;
+			if ( _ray.intersectsBox( geometry.boundingBox ) === false ) return;
 
 		}
+
+		// // k-DOP step
+
+		// if ( geometry.boundingDOP14 !== null ) {
+
+		// 	if ( geometry.boundingDOP14.intersectsRay( _ray ) === false ) return;
+
+		// }
 
 		// test for intersections with geometry
 
